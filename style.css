@@ -1,39 +1,48 @@
 :root {
-  --primary: #3b82f6;
-  --bg: #f9fafb;
+  --primary: #2563eb;
+  --background: #f3f4f6;
   --text: #111827;
-  --accent: #2563eb;
+  --accent: #3b82f6;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
   font-family: 'Segoe UI', sans-serif;
-  background-color: var(--bg);
-  margin: 0;
-  padding: 0;
+  background-color: var(--background);
   color: var(--text);
 }
 
 header {
-  background: var(--primary);
+  background-color: var(--primary);
   color: white;
   text-align: center;
-  padding: 2rem 1rem;
+  padding: 3rem 1rem;
 }
 
 .tagline {
   font-size: 1.2rem;
+  margin-top: 0.5rem;
   font-weight: 300;
 }
 
-section {
+main {
   padding: 2rem 1.5rem;
-  max-width: 800px;
+  max-width: 900px;
   margin: auto;
 }
 
 h2 {
-  color: var(--accent);
   margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+
+section {
+  margin-bottom: 2.5rem;
 }
 
 ul {
@@ -42,21 +51,21 @@ ul {
 }
 
 ul li::before {
-  content: '✔️ ';
+  content: "✔️ ";
   margin-right: 0.5rem;
   color: green;
 }
 
-.contact a {
+.cta a {
   color: var(--accent);
-  font-weight: bold;
   text-decoration: none;
+  font-weight: bold;
 }
 
 footer {
   text-align: center;
-  padding: 1rem;
+  padding: 1.5rem;
   background-color: #e5e7eb;
-  color: #4b5563;
   font-size: 0.9rem;
+  color: #6b7280;
 }
