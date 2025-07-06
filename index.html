@@ -1,252 +1,108 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Calculadora de Cerâmica</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Calculadora de Materiais</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f2f5;
-      margin: 0;
-      padding: 12px;
-    }
-    .container {
-      max-width: 540px;
-      margin-left: 0;
-      margin-right: auto;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-      padding: 20px;
-      text-align: left;
-    }
-    h2 {
-      color: #0078D7;
-    }
-    label {
-      font-weight: bold;
-      margin-top: 12px;
-      display: block;
-    }
-    input[type="number"], input[type="text"], select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      margin-top: 20px;
-      padding: 14px;
-      background-color: #0078D7;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .resultado {
-      margin-top: 24px;
-      background: #eef3fb;
-      padding: 16px;
-      border-radius: 8px;
-      font-size: 18px;
-      line-height: 1.6;
-    }
-    footer {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 14px;
-      color: #666;
-    }
-    body.dark-mode {
-      background-color: #1f1f1f;
-      color: #e0e0e0;
-    }
-    body.dark-mode .container {
-      background-color: #2a2a2a;
-    }
-    body.dark-mode input, body.dark-mode select {
-      background-color: #444;
-      color: #fff;
-      border-color: #666;
-    }
-    body.dark-mode .resultado {
-      background-color: #3a3a3a;
-    }
-  </style></head>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+    input, select { padding: 5px; margin: 5px; width: 200px; }
+    button { padding: 8px 12px; margin-top: 10px; }
+    .resultado { margin-top: 20px; background: #fff; padding: 10px; border-radius: 5px; }
+  </style>
+</head>
 <body>
-  <div class="container">
-    <h2>Calculadora de Cerâmica</h2>
 
-    <label>Tipo de Piso:</label>
-    <select id="tipoPiso">
-      <option value="ceramica">Cerâmica</option>
-      <option value="porcelanato">Porcelanato</option>
-    </select>
+  <h2>Calculadora de Orçamento</h2>
 
-    <label>ID do Produto / Nome do Cliente:</label>
-    <input type="text" id="idProduto" placeholder="Ex: CERAM-456XYZ - ravy">
+  <label>Área total (m²):</label><br>
+  <input id="areaTotal" type="number"><br>
 
-    <label>Área total (m²):</label>
-    <input type="number" id="areaTotal">
+  <label>Área por caixa (m²):</label><br>
+  <input id="areaCaixa" type="number"><br>
 
-    <label>Área por caixa (m²):</label>
-    <input type="number" step="0.01" id="areaCaixa">
+  <label>Valor por m²:</label><br>
+  <input id="valorMetro" type="number"><br>
 
-    <label>Valor do m² (R$):</label>
-    <input type="number" step="0.01" id="valorMetro">
+  <label>Margem de sobra (%):</label><br>
+  <input id="margemSobra" type="number" value="10"><br>
 
-    <label>Margem de sobra (%):</label>
-    <input type="number" id="margemSobra" value="10">
+  <label>Tipo de piso:</label><br>
+  <select id="tipoPiso">
+    <option value="ceramica">Cerâmica</option>
+    <option value="porcelanato">Porcelanato</option>
+  </select><br>
 
-    <button onclick="calcularCeramica()">Calcular valor da cerâmica</button>
-    <div class="resultado" id="resultadoCeramica"></div>
+  <label>Preço da argamassa (por saco):</label><br>
+  <input id="argamassaOutro" type="number"><br>
 
-    <hr style="margin: 24px 0;">
+  <label>Preço do rejunte (por kg):</label><br>
+  <input id="rejunteOutro" type="number"><br>
 
-    <label>Preço por saco de argamassa (20kg):</label>
-    <input type="number" step="0.01" id="argamassaOutro" placeholder="Ex: 32.00">
+  <button onclick="calcularCeramica()">Calcular Cerâmica</button>
+  <button onclick="calcularTotal()">Calcular Total</button>
 
-    <button onclick="calcularTotal()">Calcular Total com Argamassa</button>
-    <div class="resultado" id="resultadoFinal"></div>
+  <div id="resultadoCeramica" class="resultado"></div>
+  <div id="resultadoFinal" class="resultado"></div>
 
-    <hr style="margin: 24px 0;">
+  <script>
+    let areaAdquiridaGlobal = 0;
 
-    <label style="margin-top: 20px;">
-      <input type="checkbox" id="toggleTema"> Ativar modo escuro
-    </label>
+    function calcularCeramica() {
+      const area = parseFloat(document.getElementById("areaTotal").value);
+      const areaCaixa = parseFloat(document.getElementById("areaCaixa").value);
+      const valorMetro = parseFloat(document.getElementById("valorMetro").value);
+      const sobra = parseFloat(document.getElementById("margemSobra").value) / 100;
 
-    <button onclick="gerarPDF()">Gerar Orçamento em PDF</button>
-    <button onclick="limparTudo()">Limpar Tudo</button>
+      if (isNaN(area) || isNaN(areaCaixa) || isNaN(valorMetro)) {
+        document.getElementById("resultadoCeramica").innerHTML = "Preencha os campos obrigatórios.";
+        return;
+      }
 
-    <footer>
-      Todos os direitos reservados a <strong>m2A.dev</strong> · Versão 2.2
-    </footer>
-  </div><script>
-  let areaAdquiridaGlobal = 0;
+      const areaComSobra = area * (1 + sobra);
+      const caixas = Math.ceil(areaComSobra / areaCaixa);
+      areaAdquiridaGlobal = caixas * areaCaixa;
+      const valorPiso = areaAdquiridaGlobal * valorMetro;
 
-  function salvarDados() {
-    const campos = [
-      "tipoPiso", "idProduto", "areaTotal", "areaCaixa", "valorMetro",
-      "margemSobra", "argamassaOutro"
-    ];
-    campos.forEach(id => {
-      const el = document.getElementById(id);
-      localStorage.setItem(id, el.value);
-    });
-    localStorage.setItem("resultadoCeramica", document.getElementById("resultadoCeramica").innerHTML);
-    localStorage.setItem("resultadoFinal", document.getElementById("resultadoFinal").innerHTML);
-  }
-
-  function restaurarDados() {
-    const campos = [
-      "tipoPiso", "idProduto", "areaTotal", "areaCaixa", "valorMetro",
-      "margemSobra", "argamassaOutro"
-    ];
-    campos.forEach(id => {
-      const value = localStorage.getItem(id);
-      if (value !== null) document.getElementById(id).value = value;
-    });
-    document.getElementById("resultadoCeramica").innerHTML = localStorage.getItem("resultadoCeramica") || "";
-    document.getElementById("resultadoFinal").innerHTML = localStorage.getItem("resultadoFinal") || "";
-  }
-
-  function calcularCeramica() {
-    const area = parseFloat(document.getElementById("areaTotal").value);
-    const areaCaixa = parseFloat(document.getElementById("areaCaixa").value);
-    const valorMetro = parseFloat(document.getElementById("valorMetro").value);
-    const sobra = parseFloat(document.getElementById("margemSobra").value) / 100;
-
-    if (isNaN(area) || isNaN(areaCaixa) || isNaN(valorMetro)) {
-      document.getElementById("resultadoCeramica").innerHTML = "Preencha os campos obrigatórios.";
-      return;
+      document.getElementById("resultadoCeramica").innerHTML = `
+        <strong>Área com sobra:</strong> ${areaComSobra.toFixed(2)} m²<br>
+        <strong>Caixas necessárias:</strong> ${caixas}<br>
+        <strong>Área real adquirida:</strong> ${areaAdquiridaGlobal.toFixed(2)} m²<br>
+        <strong>Valor da cerâmica:</strong> R$ ${valorPiso.toFixed(2)}
+      `;
     }
 
-    const areaComSobra = area * (1 + sobra);
-    const caixas = Math.ceil(areaComSobra / areaCaixa);
-    areaAdquiridaGlobal = caixas * areaCaixa;
-    const valorPiso = areaAdquiridaGlobal * valorMetro;
+    function calcularTotal() {
+      const tipo = document.getElementById("tipoPiso")?.value || "ceramica";
+      const precoArgamassa = parseFloat(document.getElementById("argamassaOutro").value) || 0;
+      const precoRejunte = parseFloat(document.getElementById("rejunteOutro").value) || 0;
 
-    document.getElementById("resultadoCeramica").innerHTML = `
-      <strong>Área com sobra:</strong> ${areaComSobra.toFixed(2)} m²<br>
-      <strong>Caixas necessárias:</strong> ${caixas}<br>
-      <strong>Área real adquirida:</strong> ${areaAdquiridaGlobal.toFixed(2)} m²<br>
-      <strong>Valor da cerâmica:</strong> R$ ${valorPiso.toFixed(2)}
-    `;
+      if (!areaAdquiridaGlobal || isNaN(precoArgamassa) || isNaN(precoRejunte)) {
+        document.getElementById("resultadoFinal").innerHTML = "Preencha os campos corretamente e calcule primeiro a cerâmica.";
+        return;
+      }
 
-    salvarDados();
-  }
+      const sacosArgamassa = Math.ceil(areaAdquiridaGlobal / 3);
+      const valorArgamassa = sacosArgamassa * precoArgamassa;
 
-  function calcularTotal() {
-    const tipo = document.getElementById("tipoPiso")?.value || "ceramica";
-    const precoArgamassa = parseFloat(document.getElementById("argamassaOutro").value) || 0;
+      const quilosRejunte = Math.ceil(areaAdquiridaGlobal / 3);
+      const valorRejunte = quilosRejunte * precoRejunte;
 
-    if (!areaAdquiridaGlobal || isNaN(precoArgamassa)) {
-      document.getElementById("resultadoFinal").innerHTML = "Preencha os campos corretamente e calcule primeiro a cerâmica.";
-      return;
+      const tipoTexto = tipo === "ceramica" ? "Cerâmica" : "Porcelanato";
+
+      document.getElementById("resultadoFinal").innerHTML = `
+        <strong>Resumo:</strong><br>
+        Tipo de Piso: ${tipoTexto}<br><br>
+
+        <strong>Argamassa:</strong><br>
+        Sacos necessários: ${sacosArgamassa}<br>
+        Valor total: R$ ${valorArgamassa.toFixed(2)}<br><br>
+
+        <strong>Rejunte:</strong><br>
+        Quilos necessários: ${quilosRejunte}<br>
+        Valor total: R$ ${valorRejunte.toFixed(2)}
+      `;
     }
+  </script>
 
-    const sacosArgamassa = Math.ceil(areaAdquiridaGlobal / 3);
-    const valorArgamassa = sacosArgamassa * precoArgamassa;
-    const tipoTexto = tipo === "ceramica" ? "Cerâmica" : "Porcelanato";
-
-    document.getElementById("resultadoFinal").innerHTML = `
-      <strong>Resumo:</strong><br>
-      Tipo de Piso: ${tipoTexto}<br>
-      Sacos de Argamassa: ${sacosArgamassa}<br>
-      Valor da Argamassa: R$ ${valorArgamassa.toFixed(2)}
-    `;
-
-    salvarDados();
-  }
-
-  function gerarPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const cliente = document.getElementById("idProduto").value || "Não informado";
-
-    const resultado = `ID / Cliente: ${cliente}\n\n` +
-                      document.getElementById('resultadoCeramica').innerText + "\n\n" +
-                      document.getElementById('resultadoFinal').innerText;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.text("Orçamento de Piso", 20, 20);
-    doc.setFontSize(10);
-    doc.text(resultado, 20, 30);
-    doc.save("orcamento-piso.pdf");
-  }
-
-  function limparTudo() {
-    document.querySelectorAll("input").forEach(inp => inp.value = "");
-    document.getElementById("resultadoCeramica").innerHTML = "";
-    document.getElementById("resultadoFinal").innerHTML = "";
-    localStorage.clear();
-    areaAdquiridaGlobal = 0;
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    restaurarDados();
-    const escuro = localStorage.getItem('temaEscuro') === '1';
-    document.body.classList.toggle('dark-mode', escuro);
-    document.getElementById('toggleTema').checked = escuro;
-  });
-
-  document.getElementById('toggleTema').addEventListener('change', function () {
-    document.body.classList.toggle('dark-mode', this.checked);
-    localStorage.setItem('temaEscuro', this.checked ? '1' : '0');
-  });
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log("SW registrado com sucesso!"))
-      .catch(error => console.log("Erro ao registrar SW:", error));
-  }
-</script>
 </body>
 </html>
