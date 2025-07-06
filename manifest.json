@@ -1,0 +1,20 @@
+{
+  "name": "m2V App",
+  "short_name": "m2V",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#005fa3",
+  "icons": [
+    {
+      "src": "assets/img/icon-192.png.jpeg",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/img/icon-512.png.jpeg",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
