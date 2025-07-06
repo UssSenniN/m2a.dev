@@ -4,6 +4,13 @@
 <head>
   <link rel="stylesheet" href="style.css">
   <script src="script.js"></script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log("SW registrado com sucesso!"))
+      .catch(error => console.log("Erro ao registrar SW:", error));
+  }
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculadora de Cerâmica</title>
